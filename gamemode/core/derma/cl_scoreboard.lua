@@ -239,7 +239,7 @@ end
 
 vgui.Register("ixScoreboardRow", PANEL, "EditablePanel")
 
--- faction grouping
+-- charclass grouping
 PANEL = {}
 
 AccessorFunc(PANEL, "_charclass", "Charclass")
@@ -278,14 +278,15 @@ end
 
 function PANEL:Update()
 	local charclass = self._charclass
+	local players = ix.charclass.GetPlayersOfClass(charclass)
 
-	if (team.NumPlayers(faction.index) == 0) then
+	if #players == 0 then
 		self:SetVisible(false)
 		self:GetParent():InvalidateLayout()
 	else
 		local bHasPlayers
 
-		for k, v in ipairs(team.GetPlayers(faction.index)) do
+		for k, v in ipairs(players) do
 			if (!IsValid(v.ixScoreboardSlot)) then
 				if (self:AddPlayer(v, k)) then
 					bHasPlayers = true

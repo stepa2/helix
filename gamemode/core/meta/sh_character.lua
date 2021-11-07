@@ -144,11 +144,11 @@ if (SERVER) then
 		local client = self:GetPlayer()
 
 		if (IsValid(client)) then
-			-- Set the faction, model, and character index for the player.
+			-- Set the charclass, model, and character index for the player.
 			local model = self:GetModel()
 
 			client:SetNetVar("char", self:GetID())
-			client:SetTeam(self:GetFaction())
+			client:SetTeam(self:GetCharClassTable().Team)
 			client:SetModel(istable(model) and model[1] or model)
 
 			-- Apply saved body groups.

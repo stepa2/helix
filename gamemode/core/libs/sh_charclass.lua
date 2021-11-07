@@ -3,9 +3,10 @@ local CHAR = ix.meta.character
 ix.charclass = ix.charclass or {}
 ix.charclass.list = ix.charclass.list or {}
 
-local function CreateDefaultCharclass(niceName)
+local function CreateDefaultCharclass(ident, index)
     return {
-        Name = niceName,
+        Name = ident,
+        Team = index,
         DisplayName = "<unnamed>",
         DisplayDesc = "<this character class has no description>",
         DisplayColor = Color(100,100,255)
@@ -16,11 +17,13 @@ function ix.charclass.LoadFromDir(directory)
     for _, v in ipairs(file.Find(directory.."/*.lua", "LUA")) do
         -- Get the name without the "sh_" prefix and ".lua" suffix.
         local niceName = v:sub(4, -5)
+        local index = table.Count(ix.charclass.list) + 1
 
-
-        CHARCLASS = CreateDefaultCharclass(niceName)
+        CHARCLASS = CreateDefaultCharclass(niceName, index)
 
         ix.util.Include(directory.."/"..v, "shared")
+
+        team.SetUp(CHARCLASS.Team, CHARCLASS.DisplayName, CHARCLASS.DisplayColor)
 
         ix.charclass.list[niceName] = CHARCLASS
         CHARCLASS = nil
@@ -30,6 +33,11 @@ end
 
 function ix.charclass.Get(ident)
     return ix.charclass.list[ident]
+end
+
+function ix.charclass.GetPlayersOfClass(ident)
+    local class = istable(ident) and ident or ix.charclass.list[ident]
+    return class and team.GetPlayers(class.Team)
 end
 
 if SERVER then
