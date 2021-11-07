@@ -7,12 +7,12 @@ function GM:PlayerInitialSpawn(client)
 	if (client:IsBot()) then
 		local botID = os.time() + client:EntIndex()
 
-		local _, charclass_id = table.Random(ix.charclass.list)
+		local charclass, charclass_id = table.Random(ix.charclass.list)
 
 		local character = ix.char.New({
 			name = client:Name(),
 			CharClass = charclass_id,
-			model = faction and table.Random(faction:GetModels(client)) or "models/gman.mdl"
+			model = charclass.GetValidModels and table.Random(charclass:GetValidModels(client)) or "models/gman.mdl"
 		}, botID, client, client:SteamID64())
 		character.isBot = true
 
@@ -458,17 +458,17 @@ function GM:PlayerLoadout(client)
 		local charclass = character:GetCharClassTable()
 
 		if (charclass) then
-			-- If their faction wants to do something when the player spawns, let it.
+			-- If their charclass wants to do something when the player spawns, let it.
 			if (charclass.OnSpawn) then
 				charclass:OnSpawn(client)
 			end
 
 			-- @todo add docs for player:Give() failing if player already has weapon - which means if a player is given a weapon
-			-- here due to the faction weapons table, the weapon's :Give call in the weapon base will fail since the player
+			-- here due to the charclass weapons table, the weapon's :Give call in the weapon base will fail since the player
 			-- will already have it by then. This will cause issues for weapons that have pac data since the parts are applied
 			-- only if the weapon returned by :Give() is valid
 
-			-- If the faction has default weapons, give them to the player.
+			-- If the charclass has default weapons, give them to the player.
 			if (charclass.DefaultWeapons) then
 				for _, v in ipairs(charclass.DefaultWeapons) do
 					client:Give(v)

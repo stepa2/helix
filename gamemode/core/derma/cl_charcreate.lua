@@ -13,20 +13,20 @@ function PANEL:Init()
 
 	self:ResetPayload(true)
 
-	self.factionButtons = {}
+	self.charclassButtons = {}
 	self.repopulatePanels = {}
 
-	-- faction selection subpanel
-	self.factionPanel = self:AddSubpanel("faction", true)
-	self.factionPanel:SetTitle("chooseFaction")
-	self.factionPanel.OnSetActive = function()
-		-- if we only have one faction, we are always selecting that one so we can skip to the description section
-		if (#self.factionButtons == 1) then
+	-- charclass selection subpanel
+	self.charclassPanel = self:AddSubpanel("charclass", true)
+	self.charclassPanel:SetTitle("chooseCharclass")
+	self.charclassPanel.OnSetActive = function()
+		-- if we only have one charclass, we are always selecting that one so we can skip to the description section
+		if (#self.charclassButtons == 1) then
 			self:SetActiveSubpanel("description", 0)
 		end
 	end
 
-	local modelList = self.factionPanel:Add("Panel")
+	local modelList = self.charclassPanel:Add("Panel")
 	modelList:Dock(RIGHT)
 	modelList:SetSize(halfWidth + padding * 2, halfHeight)
 
@@ -42,24 +42,24 @@ function PANEL:Init()
 		self:SetActiveSubpanel("description")
 	end
 
-	self.factionModel = modelList:Add("ixModelPanel")
-	self.factionModel:Dock(FILL)
-	self.factionModel:SetModel("models/error.mdl")
-	self.factionModel:SetFOV(modelFOV)
-	self.factionModel.PaintModel = self.factionModel.Paint
+	self.charclassModel = modelList:Add("ixModelPanel")
+	self.charclassModel:Dock(FILL)
+	self.charclassModel:SetModel("models/error.mdl")
+	self.charclassModel:SetFOV(modelFOV)
+	self.charclassModel.PaintModel = self.charclassModel.Paint
 
-	self.factionButtonsPanel = self.factionPanel:Add("ixCharMenuButtonList")
-	self.factionButtonsPanel:SetWide(halfWidth)
-	self.factionButtonsPanel:Dock(FILL)
+	self.charclassButtonsPanel = self.charclassPanel:Add("ixCharMenuButtonList")
+	self.charclassButtonsPanel:SetWide(halfWidth)
+	self.charclassButtonsPanel:Dock(FILL)
 
-	local factionBack = self.factionPanel:Add("ixMenuButton")
-	factionBack:SetText("return")
-	factionBack:SizeToContents()
-	factionBack:Dock(BOTTOM)
-	factionBack.DoClick = function()
+	local charclassBack = self.charclassPanel:Add("ixMenuButton")
+	charclassBack:SetText("return")
+	charclassBack:SizeToContents()
+	charclassBack:Dock(BOTTOM)
+	charclassBack.DoClick = function()
 		self.progress:DecrementProgress()
 
-		self:SetActiveSubpanel("faction", 0)
+		self:SetActiveSubpanel("charclass", 0)
 		self:SlideDown()
 
 		parent.mainPanel:Undim()
@@ -81,16 +81,16 @@ function PANEL:Init()
 	descriptionBack.DoClick = function()
 		self.progress:DecrementProgress()
 
-		if (#self.factionButtons == 1) then
-			factionBack:DoClick()
+		if (#self.charclassButtons == 1) then
+			charclassBack:DoClick()
 		else
-			self:SetActiveSubpanel("faction")
+			self:SetActiveSubpanel("charclass")
 		end
 	end
 
 	self.descriptionModel = descriptionModelList:Add("ixModelPanel")
 	self.descriptionModel:Dock(FILL)
-	self.descriptionModel:SetModel(self.factionModel:GetModel())
+	self.descriptionModel:SetModel(self.charclassModel:GetModel())
 	self.descriptionModel:SetFOV(modelFOV - 13)
 	self.descriptionModel.PaintModel = self.descriptionModel.Paint
 
@@ -136,7 +136,7 @@ function PANEL:Init()
 
 	self.attributesModel = attributesModelList:Add("ixModelPanel")
 	self.attributesModel:Dock(FILL)
-	self.attributesModel:SetModel(self.factionModel:GetModel())
+	self.attributesModel:SetModel(self.charclassModel:GetModel())
 	self.attributesModel:SetFOV(modelFOV - 13)
 	self.attributesModel.PaintModel = self.attributesModel.Paint
 
@@ -248,9 +248,9 @@ function PANEL:OnSlideUp()
 	self:Populate()
 	self.progress:SetProgress(1)
 
-	-- the faction subpanel will skip to next subpanel if there is only one faction to choose from,
+	-- the charclass subpanel will skip to next subpanel if there is only one charclass to choose from,
 	-- so we don't have to worry about it here
-	self:SetActiveSubpanel("faction", 0)
+	self:SetActiveSubpanel("charclass", 0)
 end
 
 function PANEL:OnSlideDown()
@@ -324,8 +324,8 @@ function PANEL:Populate()
 	self.repopulatePanels = {}
 
 	-- payload is empty because we attempted to send it - for whatever reason we're back here again so we need to repopulate
-	if (!self.payload.faction) then
-		for _, v in pairs(self.factionButtons) do
+	if (!self.payload.charclass) then
+		for _, v in pairs(self.charclassButtons) do
 			if (v:GetSelected()) then
 				v:SetSelected(true)
 				break
@@ -333,7 +333,7 @@ function PANEL:Populate()
 		end
 	end
 
-	self.factionButtonsPanel:SizeToContents()
+	self.charclassButtonsPanel:SizeToContents()
 
 	local zPos = 1
 
@@ -388,8 +388,8 @@ function PANEL:Populate()
 
 	if (!self.bInitialPopulate) then
 		-- setup progress bar segments
-		if (#self.factionButtons > 1) then
-			self.progress:AddSegment("@faction")
+		if (#self.charclassButtons > 1) then
+			self.progress:AddSegment("@charclass")
 		end
 
 		self.progress:AddSegment("@description")

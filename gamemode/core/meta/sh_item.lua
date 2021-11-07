@@ -156,11 +156,8 @@ item bases.
 -- @field[type=number,opt=0] price How much money it costs to purchase this item in the business menu
 -- @field[type=string,opt] category Name of the category this item belongs to - mainly used for the business menu
 -- @field[type=boolean,opt=false] noBusiness Whether or not to disallow purchasing this item in the business menu
--- @field[type=table,opt] factions List of factions allowed to purchase this item in the business menu
--- @field[type=table,opt] classes List of character classes allowed to purchase this item in the business menu. Classes are
--- checked after factions, so the character must also be in an allowed faction
 -- @field[type=string,opt] flag List of flags (as a string - e.g `"a"` or `"abc"`) allowed to purchase this item in the
--- business menu. Flags are checked last, so the character must also be in an allowed faction and class
+-- business menu.
 -- @field[type=ItemIconStructure,opt] iconCam How to render this item's icon
 -- @field[type=table,opt] functions List of all item functions that this item has. See `ItemFunctionStructure` on how to define
 -- new item functions

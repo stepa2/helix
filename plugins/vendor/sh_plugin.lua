@@ -409,7 +409,6 @@ else
 		entity.items = net.ReadTable()
 		entity.scale = net.ReadFloat()
 		entity.messages = net.ReadTable()
-		entity.factions = net.ReadTable()
 		entity.classes = net.ReadTable()
 
 		ix.gui.vendor = vgui.Create("ixVendor")
@@ -636,7 +635,6 @@ properties.Add("vendor_edit", {
 			net.WriteTable(itemsTable)
 			net.WriteFloat(entity.scale or 0.5)
 			net.WriteTable(entity.messages)
-			net.WriteTable(entity.factions)
 			net.WriteTable(entity.classes)
 		net.Send(client)
 	end

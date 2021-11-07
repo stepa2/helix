@@ -58,7 +58,7 @@ if (SERVER) then
 			query:Insert("create_time", data.createTime)
 			query:Insert("last_join_time", data.lastJoinTime)
 			query:Insert("steamid", data.steamID)
-			query:Insert("faction", data.faction or "Unknown")
+			query:Insert("charclass", data.charclass or "Unknown")
 			query:Insert("money", data.money)
 			query:Insert("data", util.TableToJSON(data.data or {}))
 			query:Callback(function(result, status, lastID)

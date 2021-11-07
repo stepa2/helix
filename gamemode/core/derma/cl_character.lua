@@ -246,7 +246,7 @@ function PANEL:Init()
 		end
 
 		self:Dim()
-		parent.newCharacterPanel:SetActiveSubpanel("faction", 0)
+		parent.newCharacterPanel:SetActiveSubpanel("charclass", 0)
 		parent.newCharacterPanel:SlideUp()
 	end
 

@@ -134,26 +134,6 @@ function GM:CanPlayerUseBusiness(client, uniqueID)
 		return false
 	end
 
-	if (itemTable.factions) then
-		local allowed = false
-
-		if (istable(itemTable.factions)) then
-			for _, v in pairs(itemTable.factions) do
-				if (client:Team() == v) then
-					allowed = true
-
-					break
-				end
-			end
-		elseif (client:Team() != itemTable.factions) then
-			allowed = false
-		end
-
-		if (!allowed) then
-			return false
-		end
-	end
-
 	if (itemTable.flag) then
 		if (!client:GetCharacter():HasFlags(itemTable.flag)) then
 			return false
@@ -405,11 +385,13 @@ function GM:CanPlayerUseCharacter(client, character)
 		return false, "@charBanned"
 	end
 
+	--[[
 	local bHasWhitelist = client:HasWhitelist(character:GetFaction())
 
 	if (!bHasWhitelist) then
 		return false, "@noWhitelist"
 	end
+	]]
 end
 
 function GM:CanProperty(client, property, entity)
