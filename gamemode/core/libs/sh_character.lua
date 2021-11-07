@@ -345,11 +345,11 @@ do
 				return false, "nameMaxLen", maxLength
 			end
 
-			return hook.Run("GetDefaultCharacterName", client, payload.faction) or value:utf8sub(1, 70)
+			return hook.Run("GetDefaultCharacterName", client, payload.CharClass) or value:utf8sub(1, 70)
 		end,
 		OnPostSetup = function(self, panel, payload)
-			local faction = ix.faction.indices[payload.faction]
-			local name, disabled = hook.Run("GetDefaultCharacterName", LocalPlayer(), payload.faction)
+			local charclass = ix.charclass.Get(payload.CharClass)
+			local name, disabled = hook.Run("GetDefaultCharacterName", LocalPlayer(), payload.CharClass)
 
 			if (name) then
 				panel:SetText(name)
@@ -361,7 +361,7 @@ do
 				panel:SetEditable(false)
 			end
 
-			panel:SetBackgroundColor(faction.color or Color(255, 255, 255, 25))
+			panel:SetBackgroundColor(charclass.DisplayColor or Color(255, 255, 255, 25))
 		end
 	})
 
@@ -443,46 +443,54 @@ do
 			layout:SetSpaceX(1)
 			layout:SetSpaceY(1)
 
-			local faction = ix.faction.indices[payload.faction]
+			local charclass = ix.charclass.Get[payload.CharClass]
 
-			if (faction) then
-				local models = faction:GetModels(LocalPlayer())
+			if charclass then
+				if charclass.GetValidModels then
+					local models = charclass:GetValidModels(LocalPlayer())
 
-				for k, v in SortedPairs(models) do
-					local icon = layout:Add("SpawnIcon")
-					icon:SetSize(64, 128)
-					icon:InvalidateLayout(true)
-					icon.DoClick = function(this)
-						payload:Set("model", k)
-					end
-					icon.PaintOver = function(this, w, h)
-						if (payload.model == k) then
-							local color = ix.config.Get("color", color_white)
+					for k, v in SortedPairs(models) do
+						local icon = layout:Add("SpawnIcon")
+						icon:SetSize(64, 128)
+						icon:InvalidateLayout(true)
+						icon.DoClick = function(this)
+							payload:Set("model", k)
+						end
+						icon.PaintOver = function(this, w, h)
+							if (payload.model == k) then
+								local color = ix.config.Get("color", color_white)
 
-							surface.SetDrawColor(color.r, color.g, color.b, 200)
+								surface.SetDrawColor(color.r, color.g, color.b, 200)
 
-							for i = 1, 3 do
-								local i2 = i * 2
-								surface.DrawOutlinedRect(i, i, w - i2, h - i2)
+								for i = 1, 3 do
+									local i2 = i * 2
+									surface.DrawOutlinedRect(i, i, w - i2, h - i2)
+								end
 							end
 						end
-					end
 
-					if (isstring(v)) then
-						icon:SetModel(v)
-					else
-						icon:SetModel(v[1], v[2] or 0, v[3])
+						if (isstring(v)) then
+							icon:SetModel(v)
+						else
+							icon:SetModel(v[1], v[2] or 0, v[3])
+						end
 					end
+				else
+					-- TODO: non-restriced model picking
 				end
 			end
 
 			return scroll
 		end,
 		OnValidate = function(self, value, payload, client)
-			local faction = ix.faction.indices[payload.faction]
+			local charclass = ix.charclass.Get[payload.CharClass]
 
-			if (faction) then
-				local models = faction:GetModels(client)
+			if charclass then
+				if charclass.GetValidModels == nil then
+					return true
+				end
+
+				local models = charclass:GetValidModels(client)
 
 				if (!payload.model or !models[payload.model]) then
 					return false, "needModel"
@@ -492,10 +500,14 @@ do
 			end
 		end,
 		OnAdjust = function(self, client, data, value, newData)
-			local faction = ix.faction.indices[data.faction]
+			local charclass = ix.charclass.Get[payload.CharClass]
 
-			if (faction) then
-				local model = faction:GetModels(client)[value]
+			if charclass then
+				if charclass.GetValidModels == nil then
+					-- TODO: non-restricted model picking
+				end
+				
+				local model = charclass:GetValidModels(client)[value]
 
 				if (isstring(model)) then
 					newData.model = model
@@ -516,69 +528,16 @@ do
 			end
 		end,
 		ShouldDisplay = function(self, container, payload)
-			local faction = ix.faction.indices[payload.faction]
-			return #faction:GetModels(LocalPlayer()) > 1
-		end
-	})
-	
-	--- Sets this character's faction. Note that this doesn't do the initial setup for the player after the faction has been
-	-- changed, so you'll have to update some character vars manually.
-	-- @realm server
-	-- @number faction Index of the faction to transfer this character to
-	-- @function SetFaction
+			local charclass = ix.charclass.Get[payload.CharClass]
 
-	--- Returns this character's faction.
-	-- @realm shared
-	-- @treturn number Index of the faction this character is currently in
-	-- @function GetFaction
-	ix.char.RegisterVar("faction", {
-		field = "faction",
-		fieldType = ix.type.string,
-		default = "Citizen",
-		bNoDisplay = true,
-		FilterValues = function(self)
-			-- make sequential table of faction unique IDs
-			local values = {}
-
-			for k, v in ipairs(ix.faction.indices) do
-				values[k] = v.uniqueID
-			end
-
-			return values
-		end,
-		OnSet = function(self, value)
-			local client = self:GetPlayer()
-
-			if (IsValid(client)) then
-				self.vars.faction = ix.faction.indices[value] and ix.faction.indices[value].uniqueID
-
-				client:SetTeam(value)
-
-				-- @todo refactor networking of character vars so this doesn't need to be repeated on every OnSet override
-				net.Start("ixCharacterVarChanged")
-					net.WriteUInt(self:GetID(), 32)
-					net.WriteString("faction")
-					net.WriteType(self.vars.faction)
-				net.Broadcast()
-			end
-		end,
-		OnGet = function(self, default)
-			local faction = ix.faction.teams[self.vars.faction]
-
-			return faction and faction.index or 0
-		end,
-		OnValidate = function(self, index, data, client)
-			if (index and client:HasWhitelist(index)) then
+			if charclass.GetValidModels == nil then
 				return true
 			end
 
-			return false
-		end,
-		OnAdjust = function(self, client, data, value, newData)
-			newData.faction = ix.faction.indices[value].uniqueID
+			return table.IsEmpty(charclass.GetValidModels(LocalPlayer()))
 		end
 	})
-
+	
 	-- attribute manipulation should be done with methods from the ix.attributes library
 	ix.char.RegisterVar("attributes", {
 		field = "attributes",

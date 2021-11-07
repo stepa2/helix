@@ -12,8 +12,6 @@ local variables = {
 	"price",
 	-- If the door is ownable.
 	"ownable",
-	-- The faction that owns a door.
-	"faction",
 	-- Whether or not the door will be hidden.
 	"visible"
 }
@@ -82,15 +80,6 @@ function PLUGIN:LoadData()
 							door.ixParent = entity
 						end
 					end
-				elseif (k2 == "faction") then
-					for k3, v3 in pairs(ix.faction.teams) do
-						if (k3 == v2) then
-							entity.ixFactionID = k3
-							entity:SetNetVar("faction", v3.index)
-
-							break
-						end
-					end
 				else
 					entity:SetNetVar(k2, v2)
 				end
@@ -131,10 +120,6 @@ function PLUGIN:SaveDoorData()
 				doorData.children = v.ixChildren
 			end
 
-			if (v.ixFactionID) then
-				doorData.faction = v.ixFactionID
-			end
-
 			-- Add the door to the door information.
 			if (!table.IsEmpty(doorData)) then
 				data[k] = doorData
@@ -152,12 +137,6 @@ end
 
 -- Whether or not a player a player has any abilities over the door, such as locking.
 function PLUGIN:CanPlayerAccessDoor(client, door, access)
-	local faction = door:GetNetVar("faction")
-
-	-- If the door has a faction set which the client is a member of, allow access.
-	if (faction and client:Team() == faction) then
-		return true
-	end
 end
 
 function PLUGIN:PostPlayerLoadout(client)
@@ -172,7 +151,7 @@ function PLUGIN:ShowTeam(client)
 	local trace = util.TraceLine(data)
 	local entity = trace.Entity
 
-	if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("faction")) then
+	if (IsValid(entity) and entity:IsDoor()) then
 		if (entity:CheckDoorAccess(client, DOOR_TENANT)) then
 			local door = entity
 

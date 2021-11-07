@@ -72,30 +72,6 @@ do
 	end
 end
 
--- Whitelisting information for the player.
-do
-	function playerMeta:SetWhitelisted(faction, whitelisted)
-		if (!whitelisted) then
-			whitelisted = nil
-		end
-
-		local data = ix.faction.indices[faction]
-
-		if (data) then
-			local whitelists = self:GetData("whitelists", {})
-			whitelists[Schema.folder] = whitelists[Schema.folder] or {}
-			whitelists[Schema.folder][data.uniqueID] = whitelisted and true or nil
-
-			self:SetData("whitelists", whitelists)
-			self:SaveData()
-
-			return true
-		end
-
-		return false
-	end
-end
-
 do
 	playerMeta.ixGive = playerMeta.ixGive or playerMeta.Give
 

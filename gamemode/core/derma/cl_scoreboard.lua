@@ -242,7 +242,7 @@ vgui.Register("ixScoreboardRow", PANEL, "EditablePanel")
 -- faction grouping
 PANEL = {}
 
-AccessorFunc(PANEL, "faction", "Faction")
+AccessorFunc(PANEL, "_charclass", "Charclass")
 
 function PANEL:Init()
 	self:DockMargin(0, 0, 0, 16)
@@ -269,15 +269,15 @@ function PANEL:AddPlayer(client, index)
 	return true
 end
 
-function PANEL:SetFaction(faction)
-	self:SetColor(faction.color)
-	self:SetText(L(faction.name))
+function PANEL:SetCharclass(charclass)
+	self:SetColor(charclass.DisplayColor)
+	self:SetText(L(charclass.DisplayName))
 
-	self.faction = faction
+	self._charclass = charclass
 end
 
 function PANEL:Update()
-	local faction = self.faction
+	local charclass = self._charclass
 
 	if (team.NumPlayers(faction.index) == 0) then
 		self:SetVisible(false)
@@ -300,7 +300,7 @@ function PANEL:Update()
 	end
 end
 
-vgui.Register("ixScoreboardFaction", PANEL, "ixCategoryPanel")
+vgui.Register("ixScoreboardCharclass", PANEL, "ixCategoryPanel")
 
 -- main scoreboard panel
 PANEL = {}
@@ -312,17 +312,22 @@ function PANEL:Init()
 
 	self:Dock(FILL)
 
-	self.factions = {}
+	local charclasses_sorted = {}
+	for _, class in SortedPairs(ix.charclass.list) do
+		table.insert(charclasses_sorted, class)
+	end
+
+	self.SubPanels = {}
 	self.nextThink = 0
 
-	for i = 1, #ix.faction.indices do
-		local faction = ix.faction.indices[i]
+	for i = 1, #charclasses_sorted do
+		local charclass = charclasses_sorted[i]
 
-		local panel = self:Add("ixScoreboardFaction")
-		panel:SetFaction(faction)
+		local panel = self:Add("ixScoreboardCharclass")
+		panel:SetCharclass(charclass)
 		panel:Dock(TOP)
 
-		self.factions[i] = panel
+		self.SubPanels[i] = panel
 	end
 
 	ix.gui.scoreboard = self
@@ -330,10 +335,8 @@ end
 
 function PANEL:Think()
 	if (CurTime() >= self.nextThink) then
-		for i = 1, #self.factions do
-			local factionPanel = self.factions[i]
-
-			factionPanel:Update()
+		for i, panel in ipairs(self.SubPanels) do
+			panel:Update()
 		end
 
 		self.nextThink = CurTime() + 0.5

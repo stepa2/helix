@@ -413,9 +413,9 @@ function PANEL:Populate(ignoreID)
 			continue
 		end
 
-		local index = character:GetFaction()
-		local faction = ix.faction.indices[index]
-		local color = faction and faction.color or color_white
+		local charclass = character:GetCharClassTable()
+
+		local color = charclass and charclass.DisplayColor or color_white
 
 		local button = self.characterList:Add("ixMenuSelectionButton")
 		button:SetBackgroundColor(color)

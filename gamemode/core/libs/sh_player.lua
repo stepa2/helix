@@ -41,22 +41,6 @@ end
 
 -- Whitelist networking information here.
 do
-	function playerMeta:HasWhitelist(faction)
-		local data = ix.faction.indices[faction]
-
-		if (data) then
-			if (data.isDefault) then
-				return true
-			end
-
-			local ixData = self:GetData("whitelists", {})
-
-			return ixData[Schema.folder] and ixData[Schema.folder][data.uniqueID] == true or false
-		end
-
-		return false
-	end
-
 	function playerMeta:GetItems()
 		local char = self:GetCharacter()
 

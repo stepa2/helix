@@ -24,7 +24,6 @@ function ENT:Initialize()
 
 		self.items = {}
 		self.messages = {}
-		self.factions = {}
 		self.classes = {}
 
 		self:SetDisplayName("John Doe")
@@ -48,17 +47,6 @@ function ENT:Initialize()
 end
 
 function ENT:CanAccess(client)
-	local bAccess = false
-	local uniqueID = ix.faction.indices[client:Team()].uniqueID
-
-	if (self.factions and !table.IsEmpty(self.factions)) then
-		if (self.factions[uniqueID]) then
-			bAccess = true
-		else
-			return false
-		end
-	end
-
 	return true
 end
 

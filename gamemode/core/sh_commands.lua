@@ -490,45 +490,6 @@ do
 	end)
 end
 
-ix.command.Add("PlyWhitelist", {
-	description = "@cmdPlyWhitelist",
-	privilege = "Manage Character Whitelist",
-	superAdminOnly = true,
-	arguments = {
-		ix.type.player,
-		ix.type.text
-	},
-	OnRun = function(self, client, target, name)
-		if (name == "") then
-			return "@invalidArg", 2
-		end
-
-		local faction = ix.faction.teams[name]
-
-		if (!faction) then
-			for _, v in ipairs(ix.faction.indices) do
-				if (ix.util.StringMatches(L(v.name, client), name) or ix.util.StringMatches(v.uniqueID, name)) then
-					faction = v
-
-					break
-				end
-			end
-		end
-
-		if (faction) then
-			if (target:SetWhitelisted(faction.index, true)) then
-				for _, v in ipairs(player.GetAll()) do
-					if (self:OnCheckAccess(v) or v == target) then
-						v:NotifyLocalized("whitelist", client:GetName(), target:GetName(), L(faction.name, v))
-					end
-				end
-			end
-		else
-			return "@invalidFaction"
-		end
-	end
-})
-
 ix.command.Add("CharGetUp", {
 	description = "@cmdCharGetUp",
 	OnRun = function(self, client, arguments)
@@ -549,73 +510,6 @@ ix.command.Add("CharGetUp", {
 				hook.Run("OnCharacterGetup", client, entity)
 				entity:Remove()
 			end)
-		end
-	end
-})
-
-ix.command.Add("PlyUnwhitelist", {
-	description = "@cmdPlyUnwhitelist",
-	privilege = "Manage Character Whitelist",
-	superAdminOnly = true,
-	arguments = {
-		ix.type.string,
-		ix.type.text
-	},
-	OnRun = function(self, client, target, name)
-		local faction = ix.faction.teams[name]
-
-		if (!faction) then
-			for _, v in ipairs(ix.faction.indices) do
-				if (ix.util.StringMatches(L(v.name, client), name) or ix.util.StringMatches(v.uniqueID, name)) then
-					faction = v
-
-					break
-				end
-			end
-		end
-
-		if (faction) then
-			local targetPlayer = ix.util.FindPlayer(target)
-
-			if (IsValid(targetPlayer) and targetPlayer:SetWhitelisted(faction.index, false)) then
-				for _, v in ipairs(player.GetAll()) do
-					if (self:OnCheckAccess(v) or v == targetPlayer) then
-						v:NotifyLocalized("unwhitelist", client:GetName(), targetPlayer:GetName(), L(faction.name, v))
-					end
-				end
-			else
-				local steamID64 = util.SteamIDTo64(target)
-				local query = mysql:Select("ix_players")
-					query:Select("data")
-					query:Where("steamid", steamID64)
-					query:Limit(1)
-					query:Callback(function(result)
-						if (istable(result) and #result > 0) then
-							local data = util.JSONToTable(result[1].data or "[]")
-							local whitelists = data.whitelists and data.whitelists[Schema.folder]
-
-							if (!whitelists or !whitelists[faction.uniqueID]) then
-								return
-							end
-
-							whitelists[faction.uniqueID] = nil
-
-							local updateQuery = mysql:Update("ix_players")
-								updateQuery:Update("data", util.TableToJSON(data))
-								updateQuery:Where("steamid", steamID64)
-							updateQuery:Execute()
-
-							for _, v in ipairs(player.GetAll()) do
-								if (self:OnCheckAccess(v)) then
-									v:NotifyLocalized("unwhitelist", client:GetName(), target, L(faction.name, v))
-								end
-							end
-						end
-					end)
-				query:Execute()
-			end
-		else
-			return "@invalidFaction"
 		end
 	end
 })
@@ -657,49 +551,6 @@ ix.command.Add("CharDesc", {
 
 		client:GetCharacter():SetDescription(description)
 		return "@descChanged"
-	end
-})
-
-ix.command.Add("PlyTransfer", {
-	description = "@cmdPlyTransfer",
-	adminOnly = true,
-	arguments = {
-		ix.type.character,
-		ix.type.text
-	},
-	OnRun = function(self, client, target, name)
-		local faction = ix.faction.teams[name]
-
-		if (!faction) then
-			for _, v in pairs(ix.faction.indices) do
-				if (ix.util.StringMatches(L(v.name, client), name)) then
-					faction = v
-
-					break
-				end
-			end
-		end
-
-		if (faction) then
-			local bHasWhitelist = target:GetPlayer():HasWhitelist(faction.index)
-
-			if (bHasWhitelist) then
-				target.vars.faction = faction.uniqueID
-				target:SetFaction(faction.index)
-
-				if (faction.OnTransferred) then
-					faction:OnTransferred(target)
-				end
-
-				for _, v in ipairs(player.GetAll()) do
-					v:NotifyLocalized("cChangeFaction", client:GetName(), target:GetName(), L(faction.name, v))
-				end
-			else
-				return "@charNotWhitelisted", target:GetName(), L(faction.name, client)
-			end
-		else
-			return "@invalidFaction"
-		end
 	end
 })
 

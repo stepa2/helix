@@ -110,22 +110,6 @@ function PANEL:Init()
 		end
 	end
 
-	self.faction = self:Add("DButton")
-	self.faction:SetText(L"vendorFaction")
-	self.faction:Dock(TOP)
-	self.faction:SetTextColor(color_white)
-	self.faction:DockMargin(0, 4, 0, 0)
-	self.faction.DoClick = function(this)
-		if (IsValid(ix.gui.editorFaction)) then
-			ix.gui.editorFaction:Remove()
-		end
-
-		ix.gui.editorFaction = vgui.Create("ixVendorFactionEditor")
-		ix.gui.editorFaction.updateVendor = self.updateVendor
-		ix.gui.editorFaction.entity = entity
-		ix.gui.editorFaction:Setup()
-	end
-
 	self.searchBar = self:Add("DTextEntry")
 	self.searchBar:Dock(TOP)
 	self.searchBar:DockMargin(0, 4, 0, 0)
@@ -269,10 +253,6 @@ end
 function PANEL:OnRemove()
 	if (IsValid(ix.gui.vendor)) then
 		ix.gui.vendor:Remove()
-	end
-
-	if (IsValid(ix.gui.editorFaction)) then
-		ix.gui.editorFaction:Remove()
 	end
 end
 

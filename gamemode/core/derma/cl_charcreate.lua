@@ -161,24 +161,6 @@ function PANEL:Init()
 	self.progress:SetPos(0, parent:GetTall() - self.progress:GetTall())
 
 	-- setup payload hooks
-	self:AddPayloadHook("model", function(value)
-		local faction = ix.faction.indices[self.payload.faction]
-
-		if (faction) then
-			local model = faction:GetModels(LocalPlayer())[value]
-
-			-- assuming bodygroups
-			if (istable(model)) then
-				self.factionModel:SetModel(model[1], model[2] or 0, model[3])
-				self.descriptionModel:SetModel(model[1], model[2] or 0, model[3])
-				self.attributesModel:SetModel(model[1], model[2] or 0, model[3])
-			else
-				self.factionModel:SetModel(model)
-				self.descriptionModel:SetModel(model)
-				self.attributesModel:SetModel(model)
-			end
-		end
-	end)
 
 	-- setup character creation hooks
 	net.Receive("ixCharacterAuthed", function()
@@ -334,47 +316,6 @@ function PANEL:AttachCleanup(panel)
 end
 
 function PANEL:Populate()
-	if (!self.bInitialPopulate) then
-		-- setup buttons for the faction panel
-		-- TODO: make this a bit less janky
-		local lastSelected
-
-		for _, v in pairs(self.factionButtons) do
-			if (v:GetSelected()) then
-				lastSelected = v.faction
-			end
-
-			if (IsValid(v)) then
-				v:Remove()
-			end
-		end
-
-		self.factionButtons = {}
-
-		for _, v in SortedPairs(ix.faction.teams) do
-			if (ix.faction.HasWhitelist(v.index)) then
-				local button = self.factionButtonsPanel:Add("ixMenuSelectionButton")
-				button:SetBackgroundColor(v.color or color_white)
-				button:SetText(L(v.name):utf8upper())
-				button:SizeToContents()
-				button:SetButtonList(self.factionButtons)
-				button.faction = v.index
-				button.OnSelected = function(panel)
-					local faction = ix.faction.indices[panel.faction]
-					local models = faction:GetModels(LocalPlayer())
-
-					self.payload:Set("faction", panel.faction)
-					self.payload:Set("model", math.random(1, #models))
-				end
-
-				if ((lastSelected and lastSelected == v.index) or (!lastSelected and v.isDefault)) then
-					button:SetSelected(true)
-					lastSelected = v.index
-				end
-			end
-		end
-	end
-
 	-- remove panels created for character vars
 	for i = 1, #self.repopulatePanels do
 		self.repopulatePanels[i]:Remove()

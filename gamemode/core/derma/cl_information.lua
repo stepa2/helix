@@ -111,10 +111,10 @@ function PANEL:Init()
 			this:SetTall(height)
 		end
 
-		if (!suppress.faction) then
-			self.faction = self.characterInfo:Add("ixListRow")
-			self.faction:SetList(self.characterInfo.list)
-			self.faction:Dock(TOP)
+		if (!suppress.charclass) then
+			self.charclass = self.characterInfo:Add("ixListRow")
+			self.charclass:SetList(self.characterInfo.list)
+			self.charclass:Dock(TOP)
 		end
 
 		if (!suppress.money) then
@@ -189,13 +189,13 @@ function PANEL:Update(character)
 		return
 	end
 
-	local faction = ix.faction.indices[character:GetFaction()]
+	local charclass = character:GetCharClassTable()
 
 	if (self.name) then
 		self.name:SetText(character:GetName())
 
-		if (faction) then
-			self.name.backgroundColor = ColorAlpha(faction.color, 150) or Color(0, 0, 0, 150)
+		if (charclass) then
+			self.name.backgroundColor = ColorAlpha(charclass.DisplayColor, 150) or Color(0, 0, 0, 150)
 		end
 
 		self.name:SizeToContents()
@@ -206,10 +206,10 @@ function PANEL:Update(character)
 		self.description:SizeToContents()
 	end
 
-	if (self.faction) then
-		self.faction:SetLabelText(L("faction"))
-		self.faction:SetText(L(faction.name))
-		self.faction:SizeToContents()
+	if (self.charclass) then
+		self.charclass:SetLabelText(L("charclass"))
+		self.charclass:SetText(L(charclass.DisplayName))
+		self.charclass:SizeToContents()
 	end
 
 	if (self.money) then

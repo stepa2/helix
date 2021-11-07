@@ -6,12 +6,12 @@ function GM:PlayerInitialSpawn(client)
 
 	if (client:IsBot()) then
 		local botID = os.time() + client:EntIndex()
-		local index = math.random(1, table.Count(ix.faction.indices))
-		local faction = ix.faction.indices[index]
+
+		local _, charclass_id = table.Random(ix.charclass.list)
 
 		local character = ix.char.New({
 			name = client:Name(),
-			faction = faction and faction.uniqueID or "unknown",
+			CharClass = charclass_id,
 			model = faction and table.Random(faction:GetModels(client)) or "models/gman.mdl"
 		}, botID, client, client:SteamID64())
 		character.isBot = true
@@ -244,26 +244,6 @@ function GM:PlayerLoadedCharacter(client, character, lastChar)
 		client.ixRagdoll:Remove()
 	end
 
-	local faction = ix.faction.indices[character:GetFaction()]
-	local uniqueID = "ixSalary" .. client:UniqueID()
-
-	if (faction and faction.pay and faction.pay > 0) then
-		timer.Create(uniqueID, faction.payTime or 300, 0, function()
-			if (IsValid(client)) then
-				if (hook.Run("CanPlayerEarnSalary", client, faction) != false) then
-					local pay = hook.Run("GetSalaryAmount", client, faction) or faction.pay
-
-					character:GiveMoney(pay)
-					client:NotifyLocalized("salary", ix.currency.Get(pay))
-				end
-			else
-				timer.Remove(uniqueID)
-			end
-		end)
-	elseif (timer.Exists(uniqueID)) then
-		timer.Remove(uniqueID)
-	end
-
 	hook.Run("PlayerLoadout", client)
 end
 
@@ -475,12 +455,12 @@ function GM:PlayerLoadout(client)
 		client:SetRunSpeed(ix.config.Get("runSpeed"))
 		client:SetHealth(character:GetData("health", client:GetMaxHealth()))
 
-		local faction = ix.faction.indices[client:Team()]
+		local charclass = character:GetCharClassTable()
 
-		if (faction) then
+		if (charclass) then
 			-- If their faction wants to do something when the player spawns, let it.
-			if (faction.OnSpawn) then
-				faction:OnSpawn(client)
+			if (charclass.OnSpawn) then
+				charclass:OnSpawn(client)
 			end
 
 			-- @todo add docs for player:Give() failing if player already has weapon - which means if a player is given a weapon
@@ -489,8 +469,8 @@ function GM:PlayerLoadout(client)
 			-- only if the weapon returned by :Give() is valid
 
 			-- If the faction has default weapons, give them to the player.
-			if (faction.weapons) then
-				for _, v in ipairs(faction.weapons) do
+			if (charclass.DefaultWeapons) then
+				for _, v in ipairs(charclass.DefaultWeapons) do
 					client:Give(v)
 				end
 			end

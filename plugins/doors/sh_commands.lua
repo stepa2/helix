@@ -65,7 +65,7 @@ ix.command.Add("DoorBuy", {
 
 		-- Check if the entity is a valid door.
 		if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("disabled")) then
-			if (!entity:GetNetVar("ownable") or entity:GetNetVar("faction")) then
+			if !entity:GetNetVar("ownable") then
 				return "@dNotAllowedToOwn"
 			end
 
@@ -184,63 +184,6 @@ ix.command.Add("DoorSetOwnable", {
 		else
 			-- Tell the player the door isn't valid.
 			return "@dNotValid"
-		end
-	end
-})
-
-ix.command.Add("DoorSetFaction", {
-	description = "@cmdDoorSetFaction",
-	privilege = "Manage Doors",
-	adminOnly = true,
-	arguments = bit.bor(ix.type.text, ix.type.optional),
-	OnRun = function(self, client, name)
-		-- Get the door the player is looking at.
-		local entity = client:GetEyeTrace().Entity
-
-		-- Validate it is a door.
-		if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("disabled")) then
-			if (!name or name == "") then
-				entity.ixFactionID = nil
-				entity:SetNetVar("faction", nil)
-
-				PLUGIN:CallOnDoorChildren(entity, function()
-					entity.ixFactionID = nil
-					entity:SetNetVar("faction", nil)
-				end)
-
-				PLUGIN:SaveDoorData()
-				return "@dRemoveFaction"
-			end
-
-			local faction
-
-			-- Loop through each faction, checking the uniqueID and name.
-			for k, v in pairs(ix.faction.teams) do
-				if (ix.util.StringMatches(k, name) or ix.util.StringMatches(L(v.name, client), name)) then
-					-- This faction matches the provided string.
-					faction = v
-
-					-- Escape the loop.
-					break
-				end
-			end
-
-			-- Check if a faction was found.
-			if (faction) then
-				entity.ixFactionID = faction.uniqueID
-				entity:SetNetVar("faction", faction.index)
-
-				PLUGIN:CallOnDoorChildren(entity, function()
-					entity.ixFactionID = faction.uniqueID
-					entity:SetNetVar("faction", faction.index)
-				end)
-
-				PLUGIN:SaveDoorData()
-				return "@dSetFaction", L(faction.name, client)
-			-- The faction was not found.
-			else
-				return "@invalidFaction"
-			end
 		end
 	end
 })

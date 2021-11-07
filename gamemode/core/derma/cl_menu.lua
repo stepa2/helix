@@ -160,8 +160,10 @@ function PANEL:SetCharacterOverview(bValue, length)
 			self.projectedTexture = ProjectedTexture()
 		end
 
-		local faction = ix.faction.indices[LocalPlayer():Team()]
-		local color = faction and faction.color or color_white
+
+
+		local charclass = character:GetCharClassTable()
+		local color = charclass and charclass.DisplayColor or color_white
 
 		self.projectedTexture:SetEnableShadows(false)
 		self.projectedTexture:SetNearZ(12)

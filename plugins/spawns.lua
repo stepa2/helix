@@ -1,3 +1,4 @@
+--[[
 
 local PLUGIN = PLUGIN
 
@@ -113,3 +114,4 @@ ix.command.Add("SpawnRemove", {
 		return "@spawnDeleted", i
 	end
 })
+]]

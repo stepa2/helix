@@ -380,15 +380,10 @@ function GM:CanPlayerThrowPunch(client)
 end
 
 function GM:OnCharacterCreated(client, character)
-	local faction = ix.faction.Get(character:GetFaction())
-
-	if (faction and faction.OnCharacterCreated) then
-		faction:OnCharacterCreated(client, character)
-	end
 end
 
-function GM:GetDefaultCharacterName(client, faction)
-	local info = ix.faction.indices[faction]
+function GM:GetDefaultCharacterName(client, charclass)
+	local info = ix.charclass.Get(charclass)
 
 	if (info and info.GetDefaultName) then
 		return info:GetDefaultName(client)

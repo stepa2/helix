@@ -67,7 +67,6 @@ if (SERVER) then
 				bodygroups = bodygroups,
 				bubble = entity:GetNoBubble(),
 				items = entity.items,
-				factions = entity.factions,
 				classes = entity.classes,
 				money = entity.money,
 				scale = entity.scale
@@ -111,7 +110,6 @@ if (SERVER) then
 			end
 
 			entity.items = items
-			entity.factions = v.factions or {}
 			entity.classes = v.classes or {}
 			entity.money = v.money
 			entity.scale = v.scale or 0.5
@@ -239,19 +237,6 @@ if (SERVER) then
 			UpdateEditReceivers(entity.receivers, key, data)
 
 			data = uniqueID
-		elseif (key == "faction") then
-			local faction = ix.faction.teams[data]
-
-			if (faction) then
-				entity.factions[data] = !entity.factions[data]
-
-				if (!entity.factions[data]) then
-					entity.factions[data] = nil
-				end
-			end
-
-			local uniqueID = data
-			data = {uniqueID, entity.factions[uniqueID]}
 		elseif (key == "model") then
 			entity:SetModel(data)
 			entity:SetSolid(SOLID_BBOX)
@@ -532,16 +517,6 @@ else
 			local current, max = entity:GetStock(data)
 
 			editor.lines[data]:SetValue(5, current.."/"..max)
-		elseif (key == "faction") then
-			local uniqueID = data[1]
-			local state = data[2]
-			local editPanel = ix.gui.editorFaction
-
-			entity.factions[uniqueID] = state
-
-			if (IsValid(editPanel) and IsValid(editPanel.factions[uniqueID])) then
-				editPanel.factions[uniqueID]:SetChecked(state == true)
-			end
 		elseif (key == "model") then
 			editor.model:SetText(entity:GetModel())
 		elseif (key == "scale") then

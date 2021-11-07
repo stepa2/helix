@@ -11,16 +11,6 @@ function PLUGIN:GetDefaultDoorInfo(door)
 	local name = door:GetNetVar("title", door:GetNetVar("name", IsValid(owner) and L"dTitleOwned" or L"dTitle"))
 	local description = door:GetNetVar("ownable") and L("dIsOwnable") or L("dIsNotOwnable")
 	local color = ix.config.Get("color")
-	local faction = door:GetNetVar("faction")
-
-	if (faction) then
-		local info = ix.faction.indices[faction]
-		color = team.GetColor(faction)
-
-		if (info and !owner) then
-			description = L("dOwnedBy", L2(info.name) or info.name)
-		end
-	end
 
 	if (owner) then
 		description = L("dOwnedBy", owner:GetName())
