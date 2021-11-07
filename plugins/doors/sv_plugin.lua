@@ -14,8 +14,6 @@ local variables = {
 	"ownable",
 	-- The faction that owns a door.
 	"faction",
-	-- The class that owns a door.
-	"class",
 	-- Whether or not the door will be hidden.
 	"visible"
 }
@@ -133,10 +131,6 @@ function PLUGIN:SaveDoorData()
 				doorData.children = v.ixChildren
 			end
 
-			if (v.ixClassID) then
-				doorData.class = v.ixClassID
-			end
-
 			if (v.ixFactionID) then
 				doorData.faction = v.ixFactionID
 			end
@@ -164,27 +158,6 @@ function PLUGIN:CanPlayerAccessDoor(client, door, access)
 	if (faction and client:Team() == faction) then
 		return true
 	end
-
-	local class = door:GetNetVar("class")
-
-	-- If the door has a faction set which the client is a member of, allow access.
-	local classData = ix.class.list[class]
-	local charClass = client:GetCharacter():GetClass()
-	local classData2 = ix.class.list[charClass]
-
-	if (class and classData and classData2) then
-		if (classData.team) then
-			if (classData.team != classData2.team) then
-				return false
-			end
-		else
-			if (charClass != class) then
-				return false
-			end
-		end
-
-		return true
-	end
 end
 
 function PLUGIN:PostPlayerLoadout(client)
@@ -199,7 +172,7 @@ function PLUGIN:ShowTeam(client)
 	local trace = util.TraceLine(data)
 	local entity = trace.Entity
 
-	if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("faction") and !entity:GetNetVar("class")) then
+	if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("faction")) then
 		if (entity:CheckDoorAccess(client, DOOR_TENANT)) then
 			local door = entity
 

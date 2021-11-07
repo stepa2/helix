@@ -520,17 +520,7 @@ do
 			return #faction:GetModels(LocalPlayer()) > 1
 		end
 	})
-
-	-- SetClass shouldn't be used here, character:JoinClass should be used instead
-
-	--- Returns this character's current class.
-	-- @realm shared
-	-- @treturn number Index of the class this character is in
-	-- @function GetClass
-	ix.char.RegisterVar("class", {
-		bNoDisplay = true,
-	})
-
+	
 	--- Sets this character's faction. Note that this doesn't do the initial setup for the player after the faction has been
 	-- changed, so you'll have to update some character vars manually.
 	-- @realm server

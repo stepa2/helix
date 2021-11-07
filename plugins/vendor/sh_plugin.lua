@@ -252,27 +252,6 @@ if (SERVER) then
 
 			local uniqueID = data
 			data = {uniqueID, entity.factions[uniqueID]}
-		elseif (key == "class") then
-			local class
-
-			for _, v in ipairs(ix.class.list) do
-				if (v.uniqueID == data) then
-					class = v
-
-					break
-				end
-			end
-
-			if (class) then
-				entity.classes[data] = !entity.classes[data]
-
-				if (!entity.classes[data]) then
-					entity.classes[data] = nil
-				end
-			end
-
-			local uniqueID = data
-			data = {uniqueID, entity.classes[uniqueID]}
 		elseif (key == "model") then
 			entity:SetModel(data)
 			entity:SetSolid(SOLID_BBOX)
@@ -562,16 +541,6 @@ else
 
 			if (IsValid(editPanel) and IsValid(editPanel.factions[uniqueID])) then
 				editPanel.factions[uniqueID]:SetChecked(state == true)
-			end
-		elseif (key == "class") then
-			local uniqueID = data[1]
-			local state = data[2]
-			local editPanel = ix.gui.editorFaction
-
-			entity.classes[uniqueID] = state
-
-			if (IsValid(editPanel) and IsValid(editPanel.classes[uniqueID])) then
-				editPanel.classes[uniqueID]:SetChecked(state == true)
 			end
 		elseif (key == "model") then
 			editor.model:SetText(entity:GetModel())

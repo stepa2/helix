@@ -117,12 +117,6 @@ function PANEL:Init()
 			self.faction:Dock(TOP)
 		end
 
-		if (!suppress.class) then
-			self.class = self.characterInfo:Add("ixListRow")
-			self.class:SetList(self.characterInfo.list)
-			self.class:Dock(TOP)
-		end
-
 		if (!suppress.money) then
 			self.money = self.characterInfo:Add("ixListRow")
 			self.money:SetList(self.characterInfo.list)
@@ -196,7 +190,6 @@ function PANEL:Update(character)
 	end
 
 	local faction = ix.faction.indices[character:GetFaction()]
-	local class = ix.class.list[character:GetClass()]
 
 	if (self.name) then
 		self.name:SetText(character:GetName())
@@ -217,17 +210,6 @@ function PANEL:Update(character)
 		self.faction:SetLabelText(L("faction"))
 		self.faction:SetText(L(faction.name))
 		self.faction:SizeToContents()
-	end
-
-	if (self.class) then
-		-- don't show class label if the class is the same name as the faction
-		if (class and class.name != faction.name) then
-			self.class:SetLabelText(L("class"))
-			self.class:SetText(L(class.name))
-			self.class:SizeToContents()
-		else
-			self.class:SetVisible(false)
-		end
 	end
 
 	if (self.money) then

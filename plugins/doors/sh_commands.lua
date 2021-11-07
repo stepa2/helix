@@ -65,7 +65,7 @@ ix.command.Add("DoorBuy", {
 
 		-- Check if the entity is a valid door.
 		if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("disabled")) then
-			if (!entity:GetNetVar("ownable") or entity:GetNetVar("faction") or entity:GetNetVar("class")) then
+			if (!entity:GetNetVar("ownable") or entity:GetNetVar("faction")) then
 				return "@dNotAllowedToOwn"
 			end
 
@@ -441,57 +441,6 @@ ix.command.Add("DoorSetHidden", {
 		else
 			-- Tell the player the door isn't valid.
 			return "@dNotValid"
-		end
-	end
-})
-
-ix.command.Add("DoorSetClass", {
-	description = "@cmdDoorSetClass",
-	privilege = "Manage Doors",
-	adminOnly = true,
-	arguments = bit.bor(ix.type.text, ix.type.optional),
-	OnRun = function(self, client, name)
-		-- Get the door the player is looking at.
-		local entity = client:GetEyeTrace().Entity
-
-		-- Validate it is a door.
-		if (IsValid(entity) and entity:IsDoor() and !entity:GetNetVar("disabled")) then
-			if (!name or name == "") then
-				entity:SetNetVar("class", nil)
-
-				PLUGIN:CallOnDoorChildren(entity, function()
-					entity:SetNetVar("class", nil)
-				end)
-
-				PLUGIN:SaveDoorData()
-				return "@dRemoveClass"
-			end
-
-			local class, classData
-
-			for k, v in pairs(ix.class.list) do
-				if (ix.util.StringMatches(v.name, name) or ix.util.StringMatches(L(v.name, client), name)) then
-					class, classData = k, v
-
-					break
-				end
-			end
-
-			-- Check if a faction was found.
-			if (class) then
-				entity.ixClassID = class
-				entity:SetNetVar("class", class)
-
-				PLUGIN:CallOnDoorChildren(entity, function()
-					entity.ixClassID = class
-					entity:SetNetVar("class", class)
-				end)
-
-				PLUGIN:SaveDoorData()
-				return "@dSetClass", L(classData.name, client)
-			else
-				return "@invalidClass"
-			end
 		end
 	end
 })

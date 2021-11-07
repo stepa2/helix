@@ -28,22 +28,6 @@ function PANEL:Init()
 		end
 
 		self.factions[v.uniqueID] = faction
-
-		for _, v2 in ipairs(ix.class.list) do
-			if (v2.faction == k) then
-				local class = panel:Add("DCheckBoxLabel")
-				class:Dock(TOP)
-				class:DockMargin(16, 0, 0, 4)
-				class:SetText(L(v2.name))
-				class.OnChange = function(this, state)
-					self:updateVendor("class", v2.uniqueID)
-				end
-
-				self.classes[v2.uniqueID] = class
-
-				panel:SetTall(panel:GetTall() + class:GetTall() + 4)
-			end
-		end
 	end
 end
 

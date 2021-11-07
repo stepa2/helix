@@ -154,26 +154,6 @@ function GM:CanPlayerUseBusiness(client, uniqueID)
 		end
 	end
 
-	if (itemTable.classes) then
-		local allowed = false
-
-		if (istable(itemTable.classes)) then
-			for _, v in pairs(itemTable.classes) do
-				if (client:GetCharacter():GetClass() == v) then
-					allowed = true
-
-					break
-				end
-			end
-		elseif (client:GetCharacter():GetClass() == itemTable.classes) then
-			allowed = true
-		end
-
-		if (!allowed) then
-			return false
-		end
-	end
-
 	if (itemTable.flag) then
 		if (!client:GetCharacter():HasFlags(itemTable.flag)) then
 			return false

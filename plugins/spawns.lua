@@ -2,7 +2,7 @@
 local PLUGIN = PLUGIN
 
 PLUGIN.name = "Spawns"
-PLUGIN.description = "Spawn points for factions and classes."
+PLUGIN.description = "Spawn points for factions."
 PLUGIN.author = "Chessnut"
 PLUGIN.spawns = PLUGIN.spawns or {}
 
@@ -10,9 +10,7 @@ function PLUGIN:PlayerLoadout(client)
 	local character = client:GetCharacter()
 
 	if (self.spawns and !table.IsEmpty(self.spawns) and character) then
-		local class = character:GetClass()
 		local points
-		local className = "default"
 
 		for k, v in ipairs(ix.faction.indices) do
 			if (k == client:Team()) then
@@ -23,15 +21,7 @@ function PLUGIN:PlayerLoadout(client)
 		end
 
 		if (points) then
-			for _, v in ipairs(ix.class.list) do
-				if (class == v.index) then
-					className = v.uniqueID
-
-					break
-				end
-			end
-
-			points = points[className] or points["default"]
+			points = points["default"]
 
 			if (points and !table.IsEmpty(points)) then
 				local position = table.Random(points)
@@ -55,10 +45,9 @@ ix.command.Add("SpawnAdd", {
 	privilege = "Manage Spawn Points",
 	adminOnly = true,
 	arguments = {
-		ix.type.string,
-		bit.bor(ix.type.text, ix.type.optional)
+		ix.type.string
 	},
-	OnRun = function(self, client, name, class)
+	OnRun = function(self, client, name)
 		local info = ix.faction.indices[name:lower()]
 		local info2
 		local faction
@@ -75,31 +64,10 @@ ix.command.Add("SpawnAdd", {
 		end
 
 		if (info) then
-			if (class and class != "") then
-				local found = false
-
-				for _, v in ipairs(ix.class.list) do
-					if (v.faction == info.index and
-						(v.uniqueID:lower() == class:lower() or ix.util.StringMatches(L(v.name, client), class))) then
-						class = v.uniqueID
-						info2 = v
-						found = true
-
-						break
-					end
-				end
-
-				if (!found) then
-					return "@invalidClass"
-				end
-			else
-				class = "default"
-			end
-
 			PLUGIN.spawns[faction] = PLUGIN.spawns[faction] or {}
-			PLUGIN.spawns[faction][class] = PLUGIN.spawns[faction][class] or {}
+			PLUGIN.spawns[faction].default = PLUGIN.spawns[faction].default or {}
 
-			table.insert(PLUGIN.spawns[faction][class], client:GetPos())
+			table.insert(PLUGIN.spawns[faction].default, client:GetPos())
 
 			PLUGIN:SaveSpawns()
 

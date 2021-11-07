@@ -68,20 +68,6 @@ do
 			end
 		end
 	end
-
-	function playerMeta:GetClassData()
-		local char = self:GetCharacter()
-
-		if (char) then
-			local class = char:GetClass()
-
-			if (class) then
-				local classData = ix.class.list[class]
-
-				return classData
-			end
-		end
-	end
 end
 
 do

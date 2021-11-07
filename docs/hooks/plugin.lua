@@ -64,7 +64,6 @@ end
 -- - `description` - description of the character
 -- - `characterInfo` - entire panel showing a list of additional character info
 -- - `faction` - faction name of the character
--- - `class` - name of the character's class if they're in one
 -- - `money` - current money the character has
 -- - `attributes` - attributes list for the character
 --
@@ -201,18 +200,6 @@ end
 -- 	return false -- Disallow interacting with any item.
 -- end
 function CanPlayerInteractItem(client, action, item, data)
-end
-
---- Whether or not a plyer is allowed to join a class.
--- @realm shared
--- @player client Player attempting to join
--- @number class ID of the class
--- @tab info The class table
--- @treturn bool Whether or not to allow the player to join the class
--- @usage function PLUGIN:CanPlayerJoinClass(client, class, info)
--- 	return client:IsAdmin() -- Restrict joining classes to admins only.
--- end
-function CanPlayerJoinClass(client, class, info)
 end
 
 --- Whether or not a player can knock on the door with the hands SWEP.
@@ -665,10 +652,6 @@ end
 
 --- @realm server
 function PlayerInteractItem(client, action, item)
-end
-
---- @realm server
-function PlayerJoinedClass(client, class, oldClass)
 end
 
 --- @realm shared

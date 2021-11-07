@@ -238,16 +238,6 @@ function GM:PlayerLoadedCharacter(client, character, lastChar)
 		lastChar:SetVar("charEnts", nil)
 	end
 
-	if (character) then
-		for _, v in pairs(ix.class.list) do
-			if (v.faction == client:Team() and v.isDefault) then
-				character:SetClass(v.index)
-
-				break
-			end
-		end
-	end
-
 	if (IsValid(client.ixRagdoll)) then
 		client.ixRagdoll.ixNoReset = true
 		client.ixRagdoll.ixIgnoreDelete = true
@@ -501,21 +491,6 @@ function GM:PlayerLoadout(client)
 			-- If the faction has default weapons, give them to the player.
 			if (faction.weapons) then
 				for _, v in ipairs(faction.weapons) do
-					client:Give(v)
-				end
-			end
-		end
-
-		-- Ditto, but for classes.
-		local class = ix.class.list[client:GetCharacter():GetClass()]
-
-		if (class) then
-			if (class.OnSpawn) then
-				class:OnSpawn(client)
-			end
-
-			if (class.weapons) then
-				for _, v in ipairs(class.weapons) do
 					client:Give(v)
 				end
 			end

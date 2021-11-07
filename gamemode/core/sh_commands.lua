@@ -638,42 +638,6 @@ ix.command.Add("CharFallOver", {
 	end
 })
 
-ix.command.Add("BecomeClass", {
-	description = "@cmdBecomeClass",
-	arguments = ix.type.text,
-	OnRun = function(self, client, class)
-		local character = client:GetCharacter()
-
-		if (character) then
-			local num = isnumber(tonumber(class)) and tonumber(class) or -1
-
-			if (ix.class.list[num]) then
-				local v = ix.class.list[num]
-
-				if (character:JoinClass(num)) then
-					return "@becomeClass", L(v.name, client)
-				else
-					return "@becomeClassFail", L(v.name, client)
-				end
-			else
-				for k, v in ipairs(ix.class.list) do
-					if (ix.util.StringMatches(v.uniqueID, class) or ix.util.StringMatches(L(v.name, client), class)) then
-						if (character:JoinClass(k)) then
-							return "@becomeClass", L(v.name, client)
-						else
-							return "@becomeClassFail", L(v.name, client)
-						end
-					end
-				end
-			end
-
-			return "@invalid", L("class", client)
-		else
-			return "@illegalAccess"
-		end
-	end
-})
-
 ix.command.Add("CharDesc", {
 	description = "@cmdCharDesc",
 	arguments = bit.bor(ix.type.text, ix.type.optional),
@@ -735,45 +699,6 @@ ix.command.Add("PlyTransfer", {
 			end
 		else
 			return "@invalidFaction"
-		end
-	end
-})
-
-ix.command.Add("CharSetClass", {
-	description = "@cmdCharSetClass",
-	adminOnly = true,
-	arguments = {
-		ix.type.character,
-		ix.type.text
-	},
-	OnRun = function(self, client, target, class)
-		local classTable
-
-		for _, v in ipairs(ix.class.list) do
-			if (ix.util.StringMatches(v.uniqueID, class) or ix.util.StringMatches(v.name, class)) then
-				classTable = v
-			end
-		end
-
-		if (classTable) then
-			local oldClass = target:GetClass()
-			local targetPlayer = target:GetPlayer()
-
-			if (targetPlayer:Team() == classTable.faction) then
-				target:SetClass(classTable.index)
-				hook.Run("PlayerJoinedClass", targetPlayer, classTable.index, oldClass)
-
-				targetPlayer:NotifyLocalized("becomeClass", L(classTable.name, targetPlayer))
-
-				-- only send second notification if the character isn't setting their own class
-				if (client != targetPlayer) then
-					return "@setClass", target:GetName(), L(classTable.name, client)
-				end
-			else
-				return "@invalidClassFaction"
-			end
-		else
-			return "@invalidClass"
 		end
 	end
 })
