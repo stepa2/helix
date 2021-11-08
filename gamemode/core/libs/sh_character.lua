@@ -361,7 +361,7 @@ do
 				panel:SetEditable(false)
 			end
 
-			panel:SetBackgroundColor(charclass.DisplayColor or Color(255, 255, 255, 25))
+			panel:SetBackgroundColor(charclass and charclass.DisplayColor or Color(255, 255, 255, 25))
 		end
 	})
 
@@ -404,6 +404,18 @@ do
 		alias = "Desc"
 	})
 
+
+	ix.char.RegisterVar("CharClass", {
+    	field = "CharClass",
+    	fieldType = ix.type.string,
+		default = "human",
+    	OnValidate = function(self, value, all_values, ply)
+       		if ix.charclass.Get(value) == nil then
+            	return false, "incorrect", "charclass"
+        	end
+    	end
+	})
+
 	--- Sets this character's model. This sets the player's current model to the given one, and saves it to the character.
 	-- It is automatically networked.
 	-- @realm server
@@ -443,21 +455,21 @@ do
 			layout:SetSpaceX(1)
 			layout:SetSpaceY(1)
 
-			local charclass = ix.charclass.Get[payload.CharClass]
+			local charclass = ix.charclass.Get(payload.CharClass)
 
 			if charclass then
 				if charclass.GetValidModels then
 					local models = charclass:GetValidModels(LocalPlayer())
 
-					for k, v in SortedPairs(models) do
+					for i, model in ipairs(models) do
 						local icon = layout:Add("SpawnIcon")
 						icon:SetSize(64, 128)
 						icon:InvalidateLayout(true)
 						icon.DoClick = function(this)
-							payload:Set("model", k)
+							payload:Set("model", model)
 						end
 						icon.PaintOver = function(this, w, h)
-							if (payload.model == k) then
+							if (payload.model == model) then
 								local color = ix.config.Get("color", color_white)
 
 								surface.SetDrawColor(color.r, color.g, color.b, 200)
@@ -469,30 +481,31 @@ do
 							end
 						end
 
-						if (isstring(v)) then
-							icon:SetModel(v)
+						if (isstring(model)) then
+							icon:SetModel(model)
 						else
-							icon:SetModel(v[1], v[2] or 0, v[3])
+							icon:SetModel(model[1], model[2] or 0, model[3])
 						end
 					end
 				else
-					-- TODO: non-restriced model picking
+					Error("Unrestricted picking unimplemented")
 				end
 			end
 
 			return scroll
 		end,
 		OnValidate = function(self, value, payload, client)
-			local charclass = ix.charclass.Get[payload.CharClass]
+			local charclass = ix.charclass.Get(payload.CharClass)
 
 			if charclass then
 				if charclass.GetValidModels == nil then
+					Error("Unrestricted picking unimplemented")
 					return true
 				end
 
 				local models = charclass:GetValidModels(client)
 
-				if (!payload.model or !models[payload.model]) then
+				if (!payload.model or !table.HasValue(models, payload.model)) then
 					return false, "needModel"
 				end
 			else
@@ -500,41 +513,45 @@ do
 			end
 		end,
 		OnAdjust = function(self, client, data, value, newData)
-			local charclass = ix.charclass.Get[payload.CharClass]
+			local charclass = ix.charclass.Get(data.CharClass)
 
 			if charclass then
 				if charclass.GetValidModels == nil then
-					-- TODO: non-restricted model picking
+					Error("Unrestricted picking unimplemented")
+					return
 				end
-				
-				local model = charclass:GetValidModels(client)[value]
 
-				if (isstring(model)) then
-					newData.model = model
-				elseif (istable(model)) then
-					newData.model = model[1]
+				local models = charclass:GetValidModels(client)
+
+				if not !table.HasValue(models, value) then
+					return
+				elseif (isstring(value)) then
+					newData.model = value
+				elseif (istable(value)) then
+					newData.model = value[1]
 
 					-- save skin/bodygroups to character data
 					local bodygroups = {}
 
-					for i = 1, #model[3] do
-						bodygroups[i - 1] = tonumber(model[3][i]) or 0
+					for i = 1, #value[3] do
+						bodygroups[i - 1] = tonumber(value[3][i]) or 0
 					end
 
 					newData.data = newData.data or {}
-					newData.data.skin = model[2] or 0
+					newData.data.skin = value[2] or 0
 					newData.data.groups = bodygroups
 				end
 			end
 		end,
 		ShouldDisplay = function(self, container, payload)
-			local charclass = ix.charclass.Get[payload.CharClass]
+			local charclass = ix.charclass.Get(payload.CharClass)
 
 			if charclass.GetValidModels == nil then
+				Error("Unrestricted picking unimplemented")
 				return true
 			end
 
-			return table.IsEmpty(charclass.GetValidModels(LocalPlayer()))
+			return #charclass:GetValidModels(LocalPlayer()) ~= 0
 		end
 	})
 	

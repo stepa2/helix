@@ -161,6 +161,21 @@ function PANEL:Init()
 	self.progress:SetPos(0, parent:GetTall() - self.progress:GetTall())
 
 	-- setup payload hooks
+	self:AddPayloadHook("model", function(model)
+
+		-- assuming bodygroups
+		if (istable(model)) then
+			self.charclassModel:SetModel(model[1], model[2] or 0, model[3])
+			self.descriptionModel:SetModel(model[1], model[2] or 0, model[3])
+			self.attributesModel:SetModel(model[1], model[2] or 0, model[3])
+		elseif (isstring(model)) then
+			self.charclassModel:SetModel(model)
+			self.descriptionModel:SetModel(model)
+			self.attributesModel:SetModel(model)
+		else
+			ErrorNoHalt("CharCreate: invalid model ",model," , key = ",value)
+		end
+	end)
 
 	-- setup character creation hooks
 	net.Receive("ixCharacterAuthed", function()
@@ -316,6 +331,42 @@ function PANEL:AttachCleanup(panel)
 end
 
 function PANEL:Populate()
+	if (!self.bInitialPopulate) then
+		-- setup buttons for the faction panel
+		-- TODO: make this a bit less janky
+		local lastSelected
+
+		for _, v in pairs(self.charclassButtons) do
+			if (v:GetSelected()) then
+				lastSelected = v._charclass
+			end
+
+			if (IsValid(v)) then
+				v:Remove()
+			end
+		end
+
+		self.charclassButtons = {}
+
+		for сс_ident, cc in SortedPairsByMemberValue(ix.charclass.list, "DisplayName") do
+			local button = self.charclassPanel:Add("ixMenuSelectionButton")
+			button:SetBackgroundColor(cc.DisplayColor or color_white)
+				button:SetText(L(cc.DisplayName):utf8upper())
+				button:SizeToContents()
+				button:SetButtonList(self.charclassButtons)
+				button._charclass = сс_ident
+				button.OnSelected = function(panel)
+					self.payload:Set("CharClass", panel._charclass)
+					self.payload:Set("model", cc:PickRandomModel(LocalPlayer()))
+				end
+
+				if ((lastSelected and lastSelected == сс_ident) or (!lastSelected and cc.IsDefault)) then
+					button:SetSelected(true)
+					lastSelected = сс_ident
+				end
+		end
+	end
+
 	-- remove panels created for character vars
 	for i = 1, #self.repopulatePanels do
 		self.repopulatePanels[i]:Remove()
@@ -324,7 +375,7 @@ function PANEL:Populate()
 	self.repopulatePanels = {}
 
 	-- payload is empty because we attempted to send it - for whatever reason we're back here again so we need to repopulate
-	if (!self.payload.charclass) then
+	if (!self.payload["CharClass"]) then
 		for _, v in pairs(self.charclassButtons) do
 			if (v:GetSelected()) then
 				v:SetSelected(true)

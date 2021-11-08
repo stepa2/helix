@@ -1,16 +1,17 @@
 local CHAR = ix.meta.character
+local META = META or {}
 
 ix.charclass = ix.charclass or {}
 ix.charclass.list = ix.charclass.list or {}
 
 local function CreateDefaultCharclass(ident, index)
-    return {
+    return setmetatable({
         Name = ident,
         Team = index,
         DisplayName = "<unnamed>",
         DisplayDesc = "<this character class has no description>",
         DisplayColor = Color(100,100,255)
-    }
+    }, {__index = META})
 end
 
 function ix.charclass.LoadFromDir(directory)
@@ -67,16 +68,6 @@ if SERVER then
     end)
 end
 
-ix.char.RegisterVar("CharClass", {
-    field = "CharClass",
-    fieldType = ix.type.string,
-    OnValidate = function(self, value, all_values, ply)
-        if ix.charclass.Get(value) == nil then
-            return false, "incorrect", "charclass"
-        end
-    end
-})
-
 -- function CHARCLASS:OnSwitchedTo(character)
 -- function CHARCLASS:OnSwitchedFrom(character)
 -- function CHARCLASS:GetDefaultName(ply)
@@ -93,5 +84,17 @@ ix.char.RegisterVar("CharClass", {
 
 function CHAR:GetCharClassTable()
     local ident = self:GetCharClass()
-	return ident and ix.charclass.Get(ident)
+    return ident and ix.charclass.Get(ident)
+end
+
+function META:PickRandomModel(ply)
+    if self.GetValidModels == nil then
+        -- TODO: unrestricted picking
+        Error("Unrestricted picking unimplemented")
+        return
+    end
+
+    local models = self:GetValidModels(ply)
+
+    return models[math.random(#models)]
 end
