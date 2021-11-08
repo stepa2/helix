@@ -317,7 +317,7 @@ function GM:PlayerSpawnSWEP(client, weapon, info)
 end
 
 function GM:PlayerSpawnProp(client)
-	if (client:GetCharacter() and client:GetCharacter():HasFlags("e")) then
+	if client:GetCharacter() then
 		return true
 	end
 
@@ -335,7 +335,7 @@ end
 function GM:PlayerSpawnVehicle(client, model, name, data)
 	if (client:GetCharacter()) then
 		if (data.Category == "Chairs") then
-			return client:GetCharacter():HasFlags("c")
+			return true
 		else
 			return client:GetCharacter():HasFlags("C")
 		end
@@ -451,6 +451,8 @@ function GM:PlayerLoadout(client)
 		-- Set their player model to the character's model.
 		client:SetModel(character:GetModel())
 		client:Give("ix_hands")
+		client:Give("weapon_physgun")
+		client:Give("gmod_tool")
 		client:SetWalkSpeed(ix.config.Get("walkSpeed"))
 		client:SetRunSpeed(ix.config.Get("runSpeed"))
 		client:SetHealth(character:GetData("health", client:GetMaxHealth()))
