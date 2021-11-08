@@ -4,6 +4,19 @@ local META = META or {}
 ix.charclass = ix.charclass or {}
 ix.charclass.list = ix.charclass.list or {}
 
+-- ident -> team
+local charclass_indices = {}
+
+local function GenerateCharclassIndex(ident)
+    local index = charclass_indices[ident]
+    if index ~= nil then return index end
+
+    index = table.Count(charclass_indices) + 1
+    charclass_indices[ident] = index
+
+    return index
+end
+
 local function CreateDefaultCharclass(ident, index)
     return setmetatable({
         Name = ident,
@@ -18,9 +31,8 @@ function ix.charclass.LoadFromDir(directory)
     for _, v in ipairs(file.Find(directory.."/*.lua", "LUA")) do
         -- Get the name without the "sh_" prefix and ".lua" suffix.
         local niceName = v:sub(4, -5)
-        local index = table.Count(ix.charclass.list) + 1
 
-        CHARCLASS = CreateDefaultCharclass(niceName, index)
+        CHARCLASS = CreateDefaultCharclass(niceName, GenerateCharclassIndex(niceName))
 
         ix.util.Include(directory.."/"..v, "shared")
 

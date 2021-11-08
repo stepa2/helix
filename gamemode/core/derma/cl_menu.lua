@@ -161,8 +161,7 @@ function PANEL:SetCharacterOverview(bValue, length)
 		end
 
 
-
-		local charclass = character:GetCharClassTable()
+		local charclass = LocalPlayer():GetCharacter():GetCharClassTable()
 		local color = charclass and charclass.DisplayColor or color_white
 
 		self.projectedTexture:SetEnableShadows(false)

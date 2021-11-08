@@ -287,12 +287,10 @@ function PANEL:Update()
 		local bHasPlayers
 
 		for k, v in ipairs(players) do
-			if (!IsValid(v.ixScoreboardSlot)) then
-				if (self:AddPlayer(v, k)) then
-					bHasPlayers = true
-				end
-			else
+			if (IsValid(v.ixScoreboardSlot)) then
 				v.ixScoreboardSlot:Update()
+				bHasPlayers = true
+			elseif (self:AddPlayer(v, k)) then
 				bHasPlayers = true
 			end
 		end
@@ -321,9 +319,7 @@ function PANEL:Init()
 	self.SubPanels = {}
 	self.nextThink = 0
 
-	for i = 1, #charclasses_sorted do
-		local charclass = charclasses_sorted[i]
-
+	for i, charclass in ipairs(charclasses_sorted) do
 		local panel = self:Add("ixScoreboardCharclass")
 		panel:SetCharclass(charclass)
 		panel:Dock(TOP)
