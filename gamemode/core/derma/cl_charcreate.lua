@@ -349,21 +349,21 @@ function PANEL:Populate()
 		self.charclassButtons = {}
 
 		for сс_ident, cc in SortedPairsByMemberValue(ix.charclass.list, "DisplayName") do
-			local button = self.charclassPanel:Add("ixMenuSelectionButton")
+			local button = self.charclassButtonsPanel:Add("ixMenuSelectionButton")
 			button:SetBackgroundColor(cc.DisplayColor or color_white)
-				button:SetText(L(cc.DisplayName):utf8upper())
-				button:SizeToContents()
-				button:SetButtonList(self.charclassButtons)
-				button._charclass = сс_ident
-				button.OnSelected = function(panel)
-					self.payload:Set("CharClass", panel._charclass)
-					self.payload:Set("model", cc:PickRandomModel(LocalPlayer()))
-				end
+			button:SetText(L(cc.DisplayName):utf8upper())
+			button:SizeToContents()
+			button:SetButtonList(self.charclassButtons)
+			button._charclass = сс_ident
+			button.OnSelected = function(panel)
+				self.payload:Set("CharClass", panel._charclass)
+				self.payload:Set("model", cc:PickRandomModel(LocalPlayer()))
+			end
 
-				if ((lastSelected and lastSelected == сс_ident) or (!lastSelected and cc.IsDefault)) then
-					button:SetSelected(true)
-					lastSelected = сс_ident
-				end
+			if ((lastSelected and lastSelected == сс_ident) or (!lastSelected and cc.IsDefault)) then
+				button:SetSelected(true)
+				lastSelected = сс_ident
+			end
 		end
 	end
 
